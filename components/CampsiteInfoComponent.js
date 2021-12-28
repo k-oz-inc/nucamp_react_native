@@ -4,6 +4,7 @@ import { Card, Icon, Rating, Input } from 'react-native-elements';
 import { connect } from 'react-redux';
 import { baseUrl } from '../shared/baseUrl';
 import { postFavorite } from '../redux/ActionCreators';
+import { postComment } from '../redux/ActionCreators';
 
 const mapStateToProps = state => {
   return {
@@ -14,7 +15,8 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = {
-    postFavorite: campsiteId => (postFavorite(campsiteId))
+    postFavorite: campsiteId => (postFavorite(campsiteId)),
+    postComment: (campsiteId, rating, author, text) => (postComment(campsiteId, rating, author, text))
 }
 
 function RenderCampsite(props) {
@@ -61,7 +63,7 @@ function RenderComments({comments}) {
         return (
             <View style={{margin: 10}}>
                 <Text style={{fontSize: 14}}>{item.text}</Text>
-                <Rating read-only style={{fontSize: 12, alignItems: 'flex-start', paddingVertical: '5%'}} imageSize={10}>{item.rating} Stars</Rating>
+                <Rating readonly style={{fontSize: 12, alignItems: 'flex-start', paddingVertical: '5%'}} imageSize={10}>{item.rating} Stars</Rating>
                 <Text style={{fontSize: 12}}>{`-- ${item.author}, ${item.date}`}</Text>
             </View>
         );
@@ -83,7 +85,7 @@ class CampsiteInfo extends Component {
         super(props);
         this.state = {
             showModal: false,
-            rating: 5,
+            rating: 0,
             author: '',
             text: ''
         };
@@ -102,8 +104,8 @@ class CampsiteInfo extends Component {
     }
 
     handleComment(campsiteId) {
-        console.log(JSON.stringify(this.state));
-        this.toggleModal();
+        const {rating, author, text } = this.state
+        this.props.postComment(campsiteId, rating,  author, text);
     }
 
     resetForm() {
@@ -125,7 +127,7 @@ class CampsiteInfo extends Component {
                 <RenderCampsite campsite={campsite} 
                     favorite={this.props.favorites.includes(campsiteId)}
                     markFavorite={() => this.markFavorite(campsiteId)}
-                    onShowModal={() => this.toggleModal()} //Pass event handler ??? 
+                     //Pass event handler ??? 
                 />
                 <Modal
                     animationType={'slide'}
@@ -141,7 +143,7 @@ class CampsiteInfo extends Component {
                             fractions={1}
                             startingValue={this.state.rating}
                             imageSize={40}
-                            onFinishRating={rating => this.setState({rating: rating})}
+                            onFinishRating={value => this.setState({rating: value})}
                             style={{paddingVertical: 10}}
                         />
                         <Input
@@ -149,14 +151,14 @@ class CampsiteInfo extends Component {
                             leftIcon={{type: 'font-awesome', name: 'user-o'}}
                             leftIconContainerStyle
                             onChangeText={value => this.setState({author: value})}
-                            value=''
+                            value={this.state.author}
                         />
                         <Input
                             placeholder='Comment'
                             leftIcon={{type: 'font-awesome', name: 'comment-o'}}
                             leftIconContainerStyle={{paddingRight: 10}}
                             onChangeText={value => this.setState({text: value})}
-                            value=''
+                            value={this.state.text}
                         />
                         <View style={{margin: 10}}>
                             <Button 
@@ -164,7 +166,9 @@ class CampsiteInfo extends Component {
                                 color={'#5637DD'}
                                 onPress={() => {
                                     this.handleComment(campsiteId);
+                                    this.toggleModal();
                                     this.resetForm();
+                                    
                                 }}       
                             />
                         </View>
