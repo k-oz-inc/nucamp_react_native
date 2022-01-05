@@ -38,6 +38,22 @@ class Reservation extends Component {
             // showModal: false    
         });
     }
+
+    reservationAlert = () => {
+    
+        return Alert.alert(
+            'Begin Search',
+            'Number of Campers: ' + this.state.campers + '\n\nHike-In? ' + (this.state.hikeIn ? "Yes" : "No") + '\n\nDate: ' + this.state.date,
+            [
+                {
+                    text: 'Cancel',
+                    onPress: () => this.resetForm(),
+                    style: 'cancel'
+                },
+                { text: 'OK', onPress: () => this.resetForm() }
+            ]
+        );
+    }
     
     render() {
         return (
@@ -100,7 +116,7 @@ class Reservation extends Component {
                             title='Search'
                             color='#5637DD'
                             accessibilityLabel='Tap me to search for available campsites to reserve'
-                            onPress={() => reservationAlert(this.state, this.resetForm)}
+                            onPress={() => this.reservationAlert()}
                         />
                     </View>
                 </Animatable.View> 
@@ -134,24 +150,6 @@ class Reservation extends Component {
             </ScrollView>
         );
     }
-}
-
-function reservationAlert(props, resetForm) {
-
-    const {campers, hikeIn, date} = props;
-
-    return Alert.alert(
-        'Begin Search',
-        'Number of Campers: ' + campers + '\n\nHike-In? ' + (hikeIn ? "Yes" : "No") + '\n\nDate: ' + date,
-        [
-            {
-                text: 'Cancel',
-                onPress: () => resetForm(),
-                style: 'cancel'
-            },
-            { text: 'OK', onPress: () => resetForm() }
-        ]
-    );
 }
 
 const styles = StyleSheet.create({
